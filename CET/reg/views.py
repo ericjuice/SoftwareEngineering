@@ -5,6 +5,7 @@ from django.contrib import messages
 from datetime import datetime, time
 from manager import tests
 import json
+from re import escape
 # Create your views here.
 def index (request):
     return HttpResponse("<center><h1>reg index </h1></center>")
@@ -140,6 +141,7 @@ def CheckOrder(request):
     if orderinfo==None:
         return HttpResponse("未找到订单或订单已过期！")
     for i in orderinfo:
+        
         temp={}
         temp["订单id"]=i.id
         temp["考试名称"]=i.exam.name
@@ -149,6 +151,19 @@ def CheckOrder(request):
         temp["订单价格"]=i.payment
         temp["支付日期"]=i.pay_time.strftime("%Y-%m-%d")
         temp["是否已付款"]=str(i.paid)
+        #对数据处理，防止xss攻击
+        for key in temp:
+            temp[key]=str(temp[key])
+            temp[key]=temp[key].replace("&","&amp;")
+            temp[key]=temp[key].replace("<","&lt;")
+            temp[key]=temp[key].replace(">","&gt;")
+            temp[key]=temp[key].replace("'","&apos;")
+            temp[key]=temp[key].replace('"',"&quot;")
+
+
+            
+            
+
         orders.append(temp)
     # print("全部订单",orders)
     if orders!=[]:
